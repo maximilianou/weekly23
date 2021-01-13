@@ -1,0 +1,55 @@
+Description: >
+  Simple custom resource demo
+Parameters:
+
+  BucketName:
+    Type: String
+    Description: The name of an S3 bucket
+
+  RoleForLambda:
+    Description: ARN or the role you created
+    Type: String
+
+Resources:
+
+  MyCustomResourceFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        ZipFile: |
+          const response = require('cfn-response');
+          const aws = require('aws-sdk');
+          exports.handler = (event, context) => {
+            const responseText = 'Starting Function';
+            const s3 = new aws.S3();
+            const bucketName = event.ResourceProperties.BucketName;
+            if( event.RequestType == 'Create'){
+              s3.createBucket({Bucket: bucketName}, function(err, data){
+              });
+            } else if( event.RequestType == 'Delete' ){
+              s3.deleteBucket({Bucket: bucketName}, function(err, data){
+              });
+            }
+            const responseData = { msg: 'hello S3 Resource!!', responseText: responseText };
+            response.send(event, context, response.SUCCESS, responseData);
+          };
+      Handler: index.handler
+      Timeout: 30
+      Runtime: nodejs12.x
+      Role: !Ref RoleForLambda
+
+  MyCustomResourceCallout:
+    Type: Custom::LambdaCallout
+    Properties:
+      ServiceToken: !GetAtt MyCustomResourceFunction.Arn
+      InputParameter: !Ref BucketName
+
+Outputs:
+  OutputFromFunction:
+    Description: Output from the custom Function
+    Value: !GetAtt MyCustomResourceCallout.msg
+
+  ResponseText:
+    Description: Output custom Function
+    Value: !GetAtt MyCustomResourceCallout.responseText
+
