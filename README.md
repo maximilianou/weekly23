@@ -39,3 +39,86 @@ Resources:
 
 ### Change Set
 
+### AWS Lambda S3 to create resouce
+
+- IAM console
+- Roles
+- Create a Role
+- Lambda
+- Next Permissions
+- Select [x] AmazonS3FullAccess
+- Select Tags -> Review
+- Name: LambdaW3FullAccessRole
+- Create Role
+- Role ARN: arn:aws:iam::620157586684:role/LambdaS3FullAccessRole
+- Copy ARN to use in the next pages
+- Back to the CloudFormation console - click in AWS principal link
+- CloudFormation
+- Create Stack
+- Upload a Template to Amazon S3
+
+lambda-s3-resource-helloworld.yml
+```yml
+Description: >
+  Simple custom resource demo
+Parameters:
+
+  InputMessage:
+    Type: String
+    Description: An input to the custom resource
+    Default: Hello Function!!
+
+  RoleForLambda:
+    Description: ARN or the role you created
+    Type: String
+
+Resources:
+
+  MyCustomResourceFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        ZipFile: |
+          const response = require('cfn-response');
+          const aws = require('aws-sdk');
+          exports.handler = (event, context) => {
+            const input = event.ResourceProperties.InputParameter;
+            const responseData = { msg: 'hello world', msg2: `${input} --received from caller`};
+            response.send(event, context, response.SUCCESS, responseData);
+          };
+
+      Handler: index.handler
+      Timeout: 30
+      Runtime: nodejs12.x
+      Role: !Ref RoleForLambda
+
+  MyCustomResourceCallout:
+    Type: Custom::LambdaCallout
+    Properties:
+      ServiceToken: !GetAtt MyCustomResourceFunction.Arn
+      InputParameter: !Ref InputMessage
+
+Outputs:
+  OutputFromFunction:
+    Description: Output from the custom Function
+    Value: !GetAtt MyCustomResourceCallout.msg
+
+  ModifiedInputReturned:
+    Description: Pipe out the input so we know we got it
+    Value: !GetAtt MyCustomResourceCallout.msg2
+```
+
+- CloudFormation console
+- upload lambda-s3-resource.yml file
+- Next
+- Set Role: arn:aws:iam::620157586684:role/LambdaS3FullAccessRole
+- Name custom-resource-demo-lambda
+- Next
+- Next
+- Create Stack
+- Solve Conflict of Typo, like nodejs12.0 is not good, instead nodejs12.x
+- CREATED COMPLETE, this is OK.
+
+Success!! AWS Lambda.
+
+- Now Delete this Stack it to use it with other resource.

@@ -1,0 +1,48 @@
+Description: >
+  Simple custom resource demo
+Parameters:
+
+  InputMessage:
+    Type: String
+    Description: An input to the custom resource
+    Default: Hello Function!!
+
+  RoleForLambda:
+    Description: ARN or the role you created
+    Type: String
+
+Resources:
+
+  MyCustomResourceFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        ZipFile: |
+          const response = require('cfn-response');
+          const aws = require('aws-sdk');
+          exports.handler = (event, context) => {
+            const input = event.ResourceProperties.InputParameter;
+            const responseData = { msg: 'hello world', msg2: `${input} --received from caller`};
+            response.send(event, context, response.SUCCESS, responseData);
+          };
+
+      Handler: index.handler
+      Timeout: 30
+      Runtime: nodejs12.x
+      Role: !Ref RoleForLambda
+
+  MyCustomResourceCallout:
+    Type: Custom::LambdaCallout
+    Properties:
+      ServiceToken: !GetAtt MyCustomResourceFunction.Arn
+      InputParameter: !Ref InputMessage
+
+Outputs:
+  OutputFromFunction:
+    Description: Output from the custom Function
+    Value: !GetAtt MyCustomResourceCallout.msg
+
+  ModifiedInputReturned:
+    Description: Pipe out the input so we know we got it
+    Value: !GetAtt MyCustomResourceCallout.msg2
+
