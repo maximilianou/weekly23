@@ -188,3 +188,12 @@ Outputs:
 ```
 | REMEMBER: CloudFormation -> Delete Stack, so you have no extra charge. |
 ```
+
+- VPC, AWS Networking
+- Gateway - Public
+- Gateway - port 80 is not encrypted, so you don't have to use it, instead 443 HTTPS
+- TLS Certificate for HTTPS ( AWS Certificate Manager Services )
+- One way to access your VPC is over: Gateway - Direct Connect
+- Second way to access your VPC is over: jumpbox
+
+
