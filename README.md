@@ -196,4 +196,59 @@ Outputs:
 - One way to access your VPC is over: Gateway - Direct Connect
 - Second way to access your VPC is over: jumpbox
 
+- Elastic Beanstalk - EC2 - Infraestructure as a Service
+- Elastic Beanstalk - Platform as a Service
+- EB - use AWS S3 bucket as repository, so you have the history of changes
+- Inmutable Deployment
+
+- AWS OpsWorks Stack
+- AWS OpsWorks Layer
+- AWS OpsWorks [Setup, Configure, Deploy, Undeploy, Shutdown ]
+- Defining an App
+  - Specity source location
+  - Include SSL cert
+  - Set environment variables
+  - Provide platform-specifig settings
+- AWS OpsWorks - Create Stack
+
+...
+
+- AWS CodeDeploy - appspec.yml
+- Lifecycle Hooks 
+  - ApplicationStop
+  - BeforeInstall
+  - AfterInstall
+  - ApplicationStart
+  - ValidateStatus
+
+- appspec.yml 
+- Sections
+  - Files
+  - Permissions
+  - Hooks
+
+```yml
+version: 0.0
+files:
+  - source: codedeploy/config/nginx.conf
+    destination: /etc/nginx
+hooks:
+  BeforeInstall:
+    - location: codedeploy/scripts/install_dependencies.sh
+  AfterInstall:
+    - location: codedeploy/scripts/start_web_server.sh
+```  
+ - AWS CodeDeploy - appspec.yml - Environment Variables
+  - $LIFECICLE_EVENT
+  - $DEPLOYMENT_ID
+  - $APPLICATION_NAME
+  - $DEPLOYMENT_GROUP_NAME
+  - $DEPLOYMENT_GROUP_ID
+
+
+
+
+
+
+
 
